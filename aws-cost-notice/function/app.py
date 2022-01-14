@@ -1,5 +1,6 @@
 # coding; utf-8
 import boto3
+from slack_sdk.web import WebClient
 
 def get_aws_cost():
     ce = boto3.client('ce')
@@ -15,5 +16,11 @@ def get_aws_cost():
     )
     print(response)
 
+def send_to_slack():
+    client = WebClient()
+    response = client.api_test()
+    print(response)
+
 def lambda_handler(event, context):
     get_aws_cost()
+    send_to_slack()
