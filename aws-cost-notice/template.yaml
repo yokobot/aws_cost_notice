@@ -1,0 +1,31 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  aws-cost-notice
+
+
+Globals:
+  Function:
+    Timeout: 30
+
+
+Resources:
+  AwsCostNoticeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: function/
+      Handler: app.lambda_handler
+      Runtime: python3.7
+      Environment:
+        Variables:
+          SLACK_BOT_TOKEN : hoge
+          SLACK_CHANNEL_ID: fuga
+
+
+Outputs:
+  AwsCostNoticeFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt AwsCostNoticeFunction.Arn
+  AwsCostNoticeFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt AwsCostNoticeFunctionRole.Arn
