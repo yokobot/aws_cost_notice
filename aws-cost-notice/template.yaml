@@ -16,6 +16,10 @@ Resources:
       CodeUri: function/
       Handler: app.lambda_handler
       Runtime: python3.7
+      Environment:
+        Variables:
+          SLACK_BOT_TOKEN : hoge
+          SLACK_CHANNEL_ID: fuga
 
 
 Outputs:
