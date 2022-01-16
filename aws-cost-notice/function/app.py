@@ -14,6 +14,7 @@ ce = boto3.client('ce')
 
 
 def get_aws_cost():
+    #TODO 引数で日付を取れるようにする
     response = ce.get_cost_and_usage(
         TimePeriod={
             'Start': '2022-01-10',
@@ -25,8 +26,12 @@ def get_aws_cost():
         ]
     )
     print(response)
+    # TODO blended costで良いかを確認する
+    daily_cost = response['ResultsByTime'][0]['Total']['BlendedCost']['Amount']
+    return(str(daily_cost))
 
-def send_to_slack():
+
+def send_to_slack(daily_cost):
     # ID of the channel you want to send the message to
     channel_id = os.environ.get("SLACK_CHANNEL_ID")
 
@@ -34,13 +39,14 @@ def send_to_slack():
         # Call the chat.postMessage method using the WebClient
         result = web_client.chat_postMessage(
             channel=channel_id,
-            text="Hello world"
+            text="昨日の AWS 料金は %s ドルです" % daily_cost
         )
         logger.info(result)
 
     except SlackApiError as e:
         logger.error(f"Error posting message: {e}")
 
+
 def lambda_handler(event, context):
-    get_aws_cost()
-    send_to_slack()
+    daily_cost = get_aws_cost()
+    send_to_slack(daily_cost)
