@@ -20,12 +20,16 @@ Resources:
         Variables:
           SLACK_BOT_TOKEN : hoge
           SLACK_CHANNEL_ID: fuga
-
+      Events:
+        AwsCostNotice:
+          Type: Schedule
+          Properties:
+            Schedule: cron(00 1 * * ? *)
 
 Outputs:
   AwsCostNoticeFunction:
-    Description: "Hello World Lambda Function ARN"
+    Description: "AwsCostNotice Lambda Function ARN"
     Value: !GetAtt AwsCostNoticeFunction.Arn
   AwsCostNoticeFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
+    Description: "Implicit IAM Role created for AwsCostNotice function"
     Value: !GetAtt AwsCostNoticeFunctionRole.Arn
