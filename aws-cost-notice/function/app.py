@@ -1,12 +1,17 @@
 # coding; utf-8
-import logging
 import os
+import inspect
+import logging
+import traceback
+from datetime import datetime, timedelta
 import boto3
+from botocore.exceptions import ClientError
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 web_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -14,24 +19,42 @@ ce = boto3.client('ce')
 
 
 def get_aws_cost():
-    #TODO 引数で日付を取れるようにする
-    response = ce.get_cost_and_usage(
-        TimePeriod={
-            'Start': '2022-01-10',
-            'End': '2022-01-11'
-        },
-        Granularity='DAILY',
-        Metrics=[
-            'BlendedCost',
-        ]
-    )
-    print(response)
-    # TODO blended costで良いかを確認する
+    """
+    前日の AWS コストをドル建てで返す関数
+    """
+    logger.info(inspect.currentframe().f_code.co_name + ' is start.')
+
+    today = datetime.now()
+    yesterday = today - timedelta(1)
+
+    try:
+        response = ce.get_cost_and_usage(
+            TimePeriod={
+                'Start': yesterday.strftime('%Y-%m-%d'),
+                'End': today.strftime('%Y-%m-%d')
+            },
+            Granularity='DAILY',
+            Metrics=[
+                'BlendedCost',
+            ]
+        )
+        logger.info(response)
+    except ClientError:
+        logging.error(traceback.format_exc())
+
+    # blended costの考え方
+    # https://hero-rin.hatenablog.com/entry/2019/03/22/030327
     daily_cost = response['ResultsByTime'][0]['Total']['BlendedCost']['Amount']
+
+    logger.info(inspect.currentframe().f_code.co_name + ' is end.')
     return(str(daily_cost))
 
 
 def send_to_slack(daily_cost):
+    """
+    slack に文字列を通知する関数
+    """
+    logger.info(inspect.currentframe().f_code.co_name + ' is start.')
     # ID of the channel you want to send the message to
     channel_id = os.environ.get("SLACK_CHANNEL_ID")
 
@@ -46,7 +69,15 @@ def send_to_slack(daily_cost):
     except SlackApiError as e:
         logger.error(f"Error posting message: {e}")
 
+    logger.info(inspect.currentframe().f_code.co_name + ' is end.')
+
 
 def lambda_handler(event, context):
-    daily_cost = get_aws_cost()
-    send_to_slack(daily_cost)
+    """
+    メイン関数
+    """
+    logger.info(inspect.currentframe().f_code.co_name + ' is start.')
+
+    send_to_slack(get_aws_cost())
+
+    logger.info(inspect.currentframe().f_code.co_name + ' is end.')
