@@ -18,13 +18,21 @@ Resources:
       Runtime: python3.7
       Environment:
         Variables:
-          SLACK_BOT_TOKEN : hoge
+          SLACK_BOT_TOKEN: hoge
           SLACK_CHANNEL_ID: fuga
       Events:
         AwsCostNotice:
           Type: Schedule
           Properties:
             Schedule: cron(00 1 * * ? *)
+      Policies:
+        - AWSLambdaExecute
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - ce:GetCostAndUsage
+              Resource: '*'
 
 Outputs:
   AwsCostNoticeFunction:
