@@ -44,7 +44,7 @@ def get_aws_cost():
 
     # blended costの考え方
     # https://hero-rin.hatenablog.com/entry/2019/03/22/030327
-    daily_cost = response['ResultsByTime'][0]['Total']['BlendedCost']['Amount']
+    daily_cost = response['ResultsByTime'][0]['Total']['UnblendedCost']['Amount']
 
     logger.info(inspect.currentframe().f_code.co_name + ' is end.')
     return(str(daily_cost))
