@@ -35,15 +35,13 @@ def get_aws_cost():
             },
             Granularity='DAILY',
             Metrics=[
-                'BlendedCost',
+                'UnblendedCost',
             ]
         )
         logger.info(response)
     except ClientError:
         logging.error(traceback.format_exc())
 
-    # blended costの考え方
-    # https://hero-rin.hatenablog.com/entry/2019/03/22/030327
     daily_cost = response['ResultsByTime'][0]['Total']['UnblendedCost']['Amount']
 
     logger.info(inspect.currentframe().f_code.co_name + ' is end.')
